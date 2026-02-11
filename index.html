@@ -40,13 +40,11 @@
 </head>
 <body class="flex items-center justify-center">
 
-<!-- Loading Spinner -->
 <div id="loading" class="fixed inset-0 z-[999] bg-[var(--c-bg)] flex flex-col items-center justify-center transition-opacity duration-300">
     <svg class="w-12 h-12 text-[var(--c-blue)] animate-spin" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M86 50.5C86 70.1355 70.1355 86 50.5 86C30.8645 86 15 70.1355 15 50.5C15 30.8645 30.8645 15 50.5 15" stroke="currentColor" stroke-width="12" stroke-linecap="round"/><path d="M50.5 15C48.7533 15 47.0375 15.0844 45.3611 15.248" stroke="white" stroke-width="10" stroke-linecap="round"/></svg>
     <p class="mt-4 text-sm text-[var(--c-text-dim)]">YOOZ Messenger</p>
 </div>
 
-<!-- Auth Page -->
 <div id="auth-page" class="hidden fixed inset-0 z-[100] bg-[var(--c-bg)] flex items-center justify-center p-4">
     <div class="w-full max-w-sm p-8 bg-[var(--c-panel)] rounded-2xl shadow-2xl text-center animate__animated animate__fadeInUp">
         <h2 class="text-2xl font-bold mb-6">ورود به یوز</h2>
@@ -59,9 +57,7 @@
     </div>
 </div>
 
-<!-- Main App -->
 <div id="main-app" class="hidden w-full h-full flex transition-opacity duration-500 opacity-0">
-    <!-- Left Panel: Chat List -->
     <div class="w-80 md:w-96 h-full bg-[var(--c-panel)] flex flex-col border-l border-[var(--c-border)] z-20 shadow-2xl relative">
         <div class="p-3 flex items-center gap-3 bg-[rgba(34,43,54,0.7)] backdrop-blur-sm sticky top-0 z-10">
             <div onclick="openProfile()" class="cursor-pointer hover:opacity-80 transition flex-shrink-0">
@@ -85,14 +81,12 @@
         </div>
     </div>
 
-    <!-- Right Panel: Chat View -->
     <div id="chat-view" class="flex-1 h-full flex flex-col chat-bg relative">
         <div id="chat-placeholder" class="flex flex-col items-center justify-center h-full text-[var(--c-text-dim)] p-4 text-center">
             <svg class="w-24 h-24 opacity-20" viewBox="0 0 24 24" fill="currentColor"><path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H5.17L4,17.17V4H20V16Z" /></svg>
             <p class="mt-4">یک گفتگو را از لیست انتخاب کنید</p>
             <p class="text-xs mt-1">یا یک کاربر جدید را برای شروع چت جستجو کنید</p>
         </div>
-
         <div id="chat-content" class="hidden flex-1 h-full flex flex-col">
             <div id="chat-header" class="h-16 bg-[rgba(24,30,37,0.7)] backdrop-blur-sm flex items-center px-4 justify-between border-b border-[var(--c-border)] shadow-sm flex-shrink-0">
                 <div class="flex items-center gap-3 cursor-pointer overflow-hidden">
@@ -121,11 +115,9 @@
     </div>
 </div>
 
-<!-- Modals -->
 <div id="modal-container" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
     <div onclick="closeModals()" class="modal-backdrop absolute inset-0 bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn animate__faster"></div>
-    
-    <div id="modal-profile" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden">
+    <div id="modal-profile" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__fadeInUp animate__faster">
         <h3 class="font-bold text-lg mb-6 text-center">پروفایل من</h3>
         <div class="flex flex-col items-center mb-6">
             <div class="relative group cursor-pointer">
@@ -142,8 +134,7 @@
             <button onclick="closeModals()" class="w-full text-[var(--c-text-dim)] py-2 text-xs mt-2">بستن</button>
         </div>
     </div>
-    
-    <div id="modal-create" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden">
+    <div id="modal-create" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__fadeInUp animate__faster">
         <h3 id="create-title" class="font-bold text-lg mb-4">ساخت گروه جدید</h3>
         <div class="space-y-4">
             <input id="new-room-name" placeholder="نام..." class="w-full bg-[var(--c-bg)] p-3 rounded-lg outline-none border-2 border-transparent focus:border-[var(--c-blue)]">
@@ -157,8 +148,7 @@
             </div>
         </div>
     </div>
-
-    <div id="modal-room-settings" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden">
+    <div id="modal-room-settings" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__fadeInUp animate__faster">
         <h3 class="font-bold text-lg mb-6 text-center">تنظیمات گفتگو</h3>
         <div class="flex flex-col items-center mb-6">
             <div class="relative group cursor-pointer">
@@ -177,265 +167,141 @@
 </div>
 
 <script>
-// --- CONFIG ---
 const SB_URL = 'https://kdoeoufvsavvihghdhyp.supabase.co';
-const SB_KEY = 'sb_publishable_Z-BF5e-PGsesrr18b_laGQ_F0iPU4lk'; // کلید شما
+const SB_KEY = 'sb_publishable_Z-BF5e-PGsesrr18b_laGQ_F0iPU4lk';
 const sb = supabase.createClient(SB_URL, SB_KEY);
+let me = null, currRoom = null, rooms = [], profiles = [], roomMembers = new Set(), tempFile = { file: null, url: null, type: null, name: null }, tempRoomAvatar = { file: null, url: null }, searchBlurTimeout;
 
-// --- GLOBALS ---
-let me = null;
-let currRoom = null;
-let rooms = [];
-let profiles = [];
-let roomMembers = new Set();
-let tempFile = { file: null, url: null, type: null, name: null };
-let tempRoomAvatar = { file: null, url: null };
-let searchBlurTimeout;
-
-// --- INIT & AUTH ---
 window.onload = async () => {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) {
-        showAuth();
-        return;
-    }
-    const { data: profile, error } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
-    if (profile) {
-        me = profile;
-        await initApp();
-    } else {
-        console.error("Profile fetch error or not found:", error);
-        showAuth(); // Fallback to auth if profile is missing
-    }
+    if (session) {
+        const { data: profile, error } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+        if (profile) { me = profile; await initApp(); } else { console.error("Profile fetch error:", error); showAuth(); }
+    } else { showAuth(); }
 };
-
 async function initApp() {
     document.getElementById('my-img').src = me.avatar_url || createAvatar(me.username);
     await refreshDataAndRender();
     setupRealtimeListeners();
-    show('main-app');
-    document.getElementById('main-app').classList.add('opacity-100');
+    show('main-app'); document.getElementById('main-app').classList.add('opacity-100');
 }
-
-function showAuth() {
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('auth-page').classList.remove('hidden');
-}
+function showAuth() { document.getElementById('loading').classList.add('hidden'); document.getElementById('auth-page').classList.remove('hidden'); }
 
 async function doLogin() {
-    // ... (This function is quite large and assumed unchanged for brevity, but it is INCLUDED in the final code)
+    const u = document.getElementById('u-user').value.trim();
+    const p = document.getElementById('u-pass').value.trim();
+    const n = document.getElementById('u-name').value.trim();
+    if (!u || !p) return alert('نام کاربری و رمز عبور الزامی است.');
+    const email = `${u}@yooz.ir`;
+    let { error } = await sb.auth.signInWithPassword({ email, password: p });
+    if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+            if (!n) return alert('برای ثبت‌نام، نام نمایشی الزامی است.');
+            const { error: signUpError } = await sb.auth.signUp({ email, password: p, options: { data: { display_name: n, username: u } } });
+            if (signUpError) return alert('خطا در ثبت‌نام: ' + signUpError.message);
+        } else { return alert('خطا در ورود: ' + error.message); }
+    }
+    const { data: { user } } = await sb.auth.getUser();
+    const { data: profile } = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
+    if (!profile) {
+        await sb.from('profiles').upsert({ id: user.id, username: u, display_name: n });
+    }
+    const savedRoomId = `saved_${user.id}`;
+    const { data: savedRoom } = await sb.from('rooms').select('id').eq('id', savedRoomId).maybeSingle();
+    if (!savedRoom) {
+        await sb.from('rooms').upsert({ id: savedRoomId, name: 'پیام‌های ذخیره شده', type: 'saved', owner_id: user.id, is_public: false });
+    }
+    location.reload();
 }
+function doLogout() { sb.auth.signOut().then(() => location.reload()); }
 
-function doLogout() {
-    sb.auth.signOut().then(() => {
-        location.reload();
-    });
-}
-
-// --- REALTIME ---
 function setupRealtimeListeners() {
-    const channel = sb.channel('yooz_global_channel')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, () => refreshDataAndRender())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'room_members' }, () => refreshDataAndRender())
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-            if (currRoom && payload.new.room_id === currRoom.id) {
-                appendMsg(payload.new);
-            }
-        })
-        .subscribe();
+    sb.channel('yooz_global_channel').on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, refreshDataAndRender).on('postgres_changes', { event: '*', schema: 'public', table: 'room_members' }, refreshDataAndRender).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => { if (currRoom && p.new.room_id === currRoom.id) appendMsg(p.new); }).subscribe();
 }
-
-// --- DATA & RENDERING ---
 async function refreshDataAndRender() {
     if (!me) return;
     try {
-        const [ { data: allRooms }, { data: joins }, { data: allProfiles } ] = await Promise.all([
-            sb.from('rooms').select('*').order('created_at', { ascending: false }),
-            sb.from('room_members').select('room_id').eq('user_id', me.id),
-            sb.from('profiles').select('*')
-        ]);
-
-        roomMembers = new Set(joins.map(j => j.room_id));
-        rooms = allRooms || [];
-        profiles = allProfiles || [];
-        
-        renderChatList();
-        
+        const [ { data: allR }, { data: j }, { data: allP } ] = await Promise.all([sb.from('rooms').select('*').order('created_at', { ascending: false }), sb.from('room_members').select('room_id').eq('user_id', me.id), sb.from('profiles').select('*')]);
+        roomMembers = new Set(j.map(x => x.room_id)); rooms = allR || []; profiles = allP || []; renderChatList();
         if (currRoom) {
-            const updatedRoomData = rooms.find(r => r.id === currRoom.id);
-            if(updatedRoomData){
-                currRoom = updatedRoomData;
-                updateChatViewUI();
-            } else {
-                document.getElementById('chat-content').classList.add('hidden');
-                document.getElementById('chat-placeholder').classList.remove('hidden');
-                currRoom = null;
-            }
+            const updatedRoom = rooms.find(r => r.id === currRoom.id);
+            if (updatedRoom) { currRoom = updatedRoom; updateChatViewUI(); } else { document.getElementById('chat-content').classList.add('hidden'); document.getElementById('chat-placeholder').classList.remove('hidden'); currRoom = null; }
         }
-    } catch(error) {
-        console.error("Error refreshing data:", error);
-    }
+    } catch(e) { console.error("Data refresh error:", e); }
 }
-
 function renderChatList() {
-    const list = document.getElementById('chat-list');
-    list.innerHTML = ''; 
+    const list = document.getElementById('chat-list'); list.innerHTML = '';
     const saved = rooms.find(r => r.type === 'saved' && r.owner_id === me.id);
     if (saved) list.insertAdjacentHTML('beforeend', renderRoomItem(saved, true));
-    const otherRooms = rooms.filter(r => r.type !== 'saved');
-    otherRooms.forEach(r => {
-        const isMember = roomMembers.has(r.id);
-        if (r.type === 'dm') {
-            if(isMember) list.insertAdjacentHTML('beforeend', renderRoomItem(r));
-        } else {
-            list.insertAdjacentHTML('beforeend', renderRoomItem(r));
-        }
-    });
+    rooms.filter(r => r.type !== 'saved').forEach(r => { if (roomMembers.has(r.id) || r.is_public) list.insertAdjacentHTML('beforeend', renderRoomItem(r)); });
 }
-
 function renderRoomItem(r, isSaved = false) {
-    const isActive = currRoom?.id === r.id;
-    let icon, name, subText;
-
+    const isActive = currRoom?.id === r.id; let icon, name, subText;
     if (r.type === 'dm') {
-        const otherUserId = r.name.replace(me.id, '').replace('_', '');
-        const otherUser = profiles.find(p => p.id === otherUserId);
-        name = otherUser ? otherUser.display_name : 'کاربر';
-        icon = otherUser ? (otherUser.avatar_url || createAvatar(otherUser.username)) : createAvatar('?');
-        subText = 'چت خصوصی';
-    } else {
-        name = r.name;
-        icon = r.avatar_url || createAvatar(r.name);
-        subText = r.type === 'channel' ? 'کانال' : 'گروه';
-    }
-
-    return `
-        <div onclick="openRoom('${r.id}')" class="p-3 flex items-center gap-3 cursor-pointer border-b border-[var(--c-border)] transition ${isActive ? 'bg-[var(--c-blue-dark)]' : 'hover:bg-[var(--c-hover)]'}">
-            <img src="${icon}" class="w-12 h-12 rounded-full object-cover bg-gray-700 flex-shrink-0">
-            <div class="flex-1 overflow-hidden">
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-sm text-white truncate">${name}</span>
-                    ${isSaved ? '<i class="fa-solid fa-thumbtack text-[11px] text-[var(--c-text-dim)]"></i>' : ''}
-                </div>
-                <div class="text-xs text-[var(--c-text-dim)] mt-1 truncate">${subText}</div>
-            </div>
-        </div>`;
+        const otherId = r.name.replace(me.id, '').replace('_', ''); const other = profiles.find(p => p.id === otherId);
+        name = other ? other.display_name : 'کاربر'; icon = other ? (other.avatar_url || createAvatar(other.username)) : createAvatar('?'); subText = 'چت خصوصی';
+    } else { name = r.name; icon = r.avatar_url || createAvatar(r.name); subText = r.type === 'channel' ? 'کانال' : 'گروه'; }
+    return `<div onclick="openRoom('${r.id}')" class="p-3 flex items-center gap-3 cursor-pointer border-b border-[var(--c-border)] transition ${isActive ? 'bg-[var(--c-blue-dark)]' : 'hover:bg-[var(--c-hover)]'}"><img src="${icon}" class="w-12 h-12 rounded-full object-cover bg-gray-700 f-s-0"><div class="flex-1 overflow-hidden"><div class="flex justify-between items-center"><span class="font-bold text-sm text-white truncate">${name}</span>${isSaved ? '<i class="fa-solid fa-thumbtack text-[11px] text-[var(--c-text-dim)]"></i>' : ''}</div><div class="text-xs text-[var(--c-text-dim)] mt-1 truncate">${subText}</div></div></div>`;
 }
-
-// --- USER SEARCH ---
-function showUserSearch() {
-    clearTimeout(searchBlurTimeout);
-    document.getElementById('chat-list').classList.add('hidden');
-    document.getElementById('user-search-results').classList.remove('hidden');
+function showUserSearch() { clearTimeout(searchBlurTimeout); document.getElementById('chat-list').classList.add('hidden'); document.getElementById('user-search-results').classList.remove('hidden'); }
+function hideUserSearch() { searchBlurTimeout = setTimeout(() => { if (document.getElementById('search').value.trim() === '') { document.getElementById('chat-list').classList.remove('hidden'); document.getElementById('user-search-results').classList.add('hidden'); } }, 200); }
+function handleSearch(q) {
+    const list = document.getElementById('user-search-results'); q = q.trim().toLowerCase(); list.innerHTML = ''; if (q === '') return;
+    const results = profiles.filter(p => p.id !== me.id && (p.username.toLowerCase().includes(q) || p.display_name.toLowerCase().includes(q)));
+    if (results.length === 0) { list.innerHTML = `<div class="text-center p-8 text-[var(--c-text-dim)]">کاربری یافت نشد.</div>`; return; }
+    results.forEach(p => list.insertAdjacentHTML('beforeend', `<div onclick="startDm('${p.id}')" class="p-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--c-hover)] border-b border-[var(--c-border)]"><img src="${p.avatar_url||createAvatar(p.username)}" class="w-12 h-12 rounded-full object-cover"><div><div class="font-bold text-sm">${p.display_name}</div><div class="text-xs text-[var(--c-text-dim)]">@${p.username}</div></div></div>`));
 }
-function hideUserSearch() {
-    searchBlurTimeout = setTimeout(() => {
-        if (document.getElementById('search').value.trim() === '') {
-            document.getElementById('chat-list').classList.remove('hidden');
-            document.getElementById('user-search-results').classList.add('hidden');
-        }
-    }, 200);
-}
-function handleSearch(query) {
-    const searchResultsList = document.getElementById('user-search-results');
-    query = query.trim().toLowerCase();
-    if (query === '') {
-        searchResultsList.innerHTML = '';
-        return;
-    }
-    searchResultsList.innerHTML = '';
-    const filteredProfiles = profiles.filter(p => p.id !== me.id && (p.username.toLowerCase().includes(query) || p.display_name.toLowerCase().includes(query)));
-    if(filteredProfiles.length === 0) {
-        searchResultsList.innerHTML = `<div class="text-center p-8 text-[var(--c-text-dim)]">کاربری یافت نشد.</div>`;
-        return;
-    }
-    filteredProfiles.forEach(p => {
-        searchResultsList.insertAdjacentHTML('beforeend', `
-            <div onclick="startDm('${p.id}')" class="p-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--c-hover)] border-b border-[var(--c-border)]">
-                <img src="${p.avatar_url || createAvatar(p.username)}" class="w-12 h-12 rounded-full object-cover">
-                <div>
-                    <div class="font-bold text-sm">${p.display_name}</div>
-                    <div class="text-xs text-[var(--c-text-dim)]">@${p.username}</div>
-                </div>
-            </div>`);
-    });
-}
-async function startDm(otherUserId) {
-    const roomId = [me.id, otherUserId].sort().join('_');
-    let { data: room } = await sb.from('rooms').select('*').eq('id', roomId).single();
+async function startDm(otherId) {
+    const roomId = [me.id, otherId].sort().join('_'); let { data: room } = await sb.from('rooms').select('*').eq('id', roomId).single();
     if (!room) {
-        const { data: newRoom, error } = await sb.from('rooms').insert({ id: roomId, name: roomId, type: 'dm', owner_id: me.id, is_public: false }).select().single();
-        if (error) { console.error("Error creating DM room:", error); return; }
-        await sb.from('room_members').insert([{ room_id: roomId, user_id: me.id }, { room_id: roomId, user_id: otherUserId }]);
-        room = newRoom;
+        const { data: newR, error } = await sb.from('rooms').insert({ id: roomId, name: roomId, type: 'dm', owner_id: me.id, is_public: false }).select().single();
+        if (error) { console.error(error); return; }
+        await sb.from('room_members').insert([{ room_id: roomId, user_id: me.id }, { room_id: roomId, user_id: otherId }]); room = newR;
     }
-    document.getElementById('search').value = '';
-    hideUserSearch();
-    await refreshDataAndRender();
-    openRoom(room.id);
+    document.getElementById('search').value = ''; hideUserSearch(); await refreshDataAndRender(); openRoom(room.id);
 }
-
-// --- CHAT MANAGEMENT ---
 async function openRoom(id) {
-    currRoom = rooms.find(r => r.id === id);
-    if (!currRoom) return;
-    document.getElementById('chat-placeholder').classList.add('hidden');
-    document.getElementById('chat-content').classList.remove('hidden');
-    await loadMsgs();
-    updateChatViewUI();
-    renderChatList(); // To update active highlight
+    currRoom = rooms.find(r => r.id === id); if (!currRoom) return;
+    document.getElementById('chat-placeholder').classList.add('hidden'); document.getElementById('chat-content').classList.remove('hidden');
+    await loadMsgs(); updateChatViewUI(); renderChatList();
 }
 function updateChatViewUI() {
-    // ...
+    document.getElementById('head-name').innerText = currRoom.name; document.getElementById('head-img').src = currRoom.avatar_url || createAvatar(currRoom.name);
+    const isOwner = currRoom.owner_id === me.id; document.getElementById('settings-btn').style.display = isOwner && currRoom.type !== 'dm' ? 'block' : 'none';
+    const isMember = roomMembers.has(currRoom.id); const inputWrapper = document.getElementById('input-area-wrapper'); const joinOverlay = document.getElementById('join-overlay');
+    if (isMember) { inputWrapper.classList.remove('hidden'); joinOverlay.classList.add('hidden'); } else { inputWrapper.classList.add('hidden'); if(currRoom.is_public) joinOverlay.classList.remove('hidden'); }
 }
-async function joinCurrentRoom() {
-    // ...
-}
-async function loadMsgs() {
-    // ...
-}
+async function joinCurrentRoom() { await sb.from('room_members').insert({ room_id: currRoom.id, user_id: me.id }); }
+async function loadMsgs() { const box = document.getElementById('messages'); box.innerHTML = ''; const { data } = await sb.from('messages').select('*').eq('room_id', currRoom.id).order('created_at'); data.forEach(m => appendMsg(m, false)); box.scrollTop = box.scrollHeight; }
 function appendMsg(m, animate = true) {
-    // ...
+    const box = document.getElementById('messages'); const isMe = m.sender_id === me.id;
+    box.insertAdjacentHTML('beforeend', `<div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'} ${animate ? 'animate__animated animate__fadeIn' : ''}"><div class="msg shadow-sm p-2 px-3 max-w-[75%] ${isMe ? 'msg-out' : 'msg-in'}"><div class="text-[#5288c1] font-bold text-[10px] mb-1">${m.sender_name}</div>${m.text || ''}<div class="text-[9px] text-gray-400 text-right mt-1">${new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div></div>`);
+    box.scrollTop = box.scrollHeight;
 }
 async function sendMsg() {
-    // ...
+    const txt = document.getElementById('msg-text').value.trim(); if (!txt) return;
+    await sb.from('messages').insert({ room_id: currRoom.id, sender_id: me.id, sender_name: me.display_name, text: txt });
+    document.getElementById('msg-text').value = '';
 }
-
-// --- MODALS, PROFILE, ROOMS ---
-function openProfile() { showModal('modal-profile'); /* ... */ }
-function openRoomSettings() { /* ... */ }
-function openCreateModal(type) { /* ... */ }
-function closeModals() { /* ... */ }
-async function saveProfile() { /* ... */ }
-async function saveRoomSettings() { /* ... */ }
-async function createRoom() { /* ... */ }
-async function uploadAvatar(input) { /* ... */ }
-async function previewRoomAvatar(input) { /* ... */ }
-
-
-// --- HELPERS ---
-function show(id) {
-    ['loading', 'auth-page', 'main-app'].forEach(x => document.getElementById(x).classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
-function showModal(id) {
-    const container = document.getElementById('modal-container');
-    container.classList.remove('hidden');
-    container.classList.add('flex');
-    const modal = document.getElementById(id);
-    modal.classList.remove('hidden');
-    modal.classList.add('animate__animated', 'animate__fadeInUp', 'animate__faster');
-}
+function openProfile() { document.getElementById('p-name').value = me.display_name; document.getElementById('p-avatar-preview').src = me.avatar_url || createAvatar(me.username); showModal('modal-profile'); }
+async function saveProfile() { const name = document.getElementById('p-name').value; await sb.from('profiles').update({ display_name: name, avatar_url: me.avatar_url }).eq('id', me.id); closeModals(); }
+async function uploadAvatar(input) { const f = input.files[0]; if(!f) return; const p = `avatars/${me.id}_${Date.now()}`; await sb.storage.from('yooz_files').upload(p, f, { upsert: true }); const { data: { publicUrl } } = sb.storage.from('yooz_files').getPublicUrl(p); me.avatar_url = publicUrl; document.getElementById('p-avatar-preview').src = publicUrl; }
+function openRoomSettings() { document.getElementById('rs-name').value = currRoom.name; document.getElementById('rs-avatar-preview').src = currRoom.avatar_url || createAvatar(currRoom.name); showModal('modal-room-settings'); }
+async function saveRoomSettings() { const name = document.getElementById('rs-name').value; let url = currRoom.avatar_url; if(tempRoomAvatar.file){ const p = `avatars/room_${currRoom.id}_${Date.now()}`; await sb.storage.from('yooz_files').upload(p, tempRoomAvatar.file, { upsert: true }); const { data: {publicUrl}} = sb.storage.from('yooz_files').getPublicUrl(p); url = publicUrl; } await sb.from('rooms').update({ name: name, avatar_url: url }).eq('id', currRoom.id); tempRoomAvatar={file:null,url:null}; closeModals(); }
+function previewRoomAvatar(i) { const f = i.files[0]; if(!f) return; tempRoomAvatar.file = f; tempRoomAvatar.url = URL.createObjectURL(f); document.getElementById('rs-avatar-preview').src = tempRoomAvatar.url; }
+function openCreateModal(type) { createType = type; document.getElementById('create-title').innerText = type === 'group' ? 'ساخت گروه جدید' : 'ساخت کانال جدید'; showModal('modal-create'); toggleFab(); }
+async function createRoom() { const name = document.getElementById('new-room-name').value; if(!name) return; const isPrivate = document.getElementById('new-room-private').checked; const id = 'r_' + Date.now(); await sb.from('rooms').insert({ id, name, type: createType, owner_id: me.id, is_public: !isPrivate }); await sb.from('room_members').insert({ room_id: id, user_id: me.id, role: 'admin' }); closeModals(); openRoom(id); }
+function toggleFab() { document.getElementById('fab-menu').classList.toggle('open'); document.getElementById('fab-icon').classList.toggle('rotate-45'); }
+function show(id) { ['loading', 'auth-page', 'main-app'].forEach(x => document.getElementById(x).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+function showModal(id) { const c = document.getElementById('modal-container'); c.classList.remove('hidden'); c.classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
+function closeModals() { document.getElementById('modal-container').classList.add('hidden'); document.getElementById('modal-container').querySelectorAll('.modal-content').forEach(m => m.classList.add('hidden')); }
 function createAvatar(name) {
-    if (!name) name = '?';
-    const colors = ["#3390ec", "#e53935", "#8e24aa", "#00897b", "#fdd835", "#fb8c00"];
-    const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-    const color = colors[Math.abs(hash) % colors.length];
-    const initial = name.charAt(0).toUpperCase();
-    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="50" fill="white" font-family="Vazirmatn">${initial}</text></svg>`;
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+    if (!name) name = '?'; const colors = ["#3390ec", "#e53935", "#8e24aa", "#00897b", "#fdd835", "#fb8c00"];
+    const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0); const color = colors[Math.abs(hash) % colors.length];
+    const initial = name.charAt(0).toUpperCase(); const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="50" fill="white" font-family="Vazirmatn">${initial}</text></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
-// (The full JS code is too long to paste again, but all functions from previous versions are included here)
+function prepareFile(input) { /* For future file upload feature */ }
 </script>
 </body>
 </html>
