@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YOOZ Messenger | FINAL COMPLETE</title>
-    <!-- لوگوی امبد شده برای جلوگیری از ارور 404 -->
+    <title>YOOZ Messenger | V8.0 Ultimate</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     
-    <!-- کتابخانه‌ها -->
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- فونت وزیر -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
         
@@ -36,9 +34,9 @@
             color: var(--c-text-main);
             overflow: hidden;
             height: 100vh;
+            user-select: none; /* جلوگیری از انتخاب متن مزاحم */
         }
 
-        /* پس‌زمینه امبد شده تلگرام */
         .chat-bg {
             background-color: #0e1621;
             background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAABAACgAgAEAAAAAQAAAQAAAAA2e3aMAAAAd0lEQVR4Ae3BAQ0AAADCIPunNu1+gJ+dFShgAgYBMQECExAgMABBnoBAgAEK8gQECgwQyBMQKDCAIE9AgMAGCPJmAgQGCPIEBAoMEPALBBggkCcgUGCAQF4gQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQJvAQYAtQABgJ6zQqIAAAAASUVORK5CYII=);
@@ -47,7 +45,6 @@
         .msg-in { background: var(--c-msg-in); border-radius: 18px 18px 18px 5px; }
         .msg-out { background: var(--c-msg-out); border-radius: 18px 18px 5px 18px; }
 
-        /* انیمیشن دکمه پلاس */
         .fab-menu {
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             opacity: 0;
@@ -60,29 +57,46 @@
             pointer-events: all;
         }
 
-        .message-options {
+        /* Context Menu Styles */
+        #context-menu {
             display: none;
             position: absolute;
-            top: -15px;
-            left: -10px;
+            z-index: 9999;
             background: var(--c-panel);
-            padding: 2px;
+            border: 1px solid var(--c-border);
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            min-width: 160px;
+            overflow: hidden;
+            animation: fadeIn 0.1s ease-out;
         }
-        .message-container:hover .message-options { display: flex; }
+        .ctx-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--c-text-main);
+            transition: background 0.2s;
+        }
+        .ctx-item:hover { background: var(--c-hover); }
+        .ctx-item i { width: 20px; text-align: center; color: var(--c-text-dim); }
+        .ctx-item.delete:hover { color: #ff5252; } .ctx-item.delete:hover i { color: #ff5252; }
     </style>
 </head>
-<body class="flex items-center justify-center">
+<body class="flex items-center justify-center" oncontextmenu="return false;"> <!-- Disable default context menu -->
 
-    <!-- لودینگ -->
+    <!-- Context Menu Element -->
+    <div id="context-menu"></div>
+
+    <!-- Loading -->
     <div id="loading" class="fixed inset-0 z-[999] bg-[var(--c-bg)] flex flex-col items-center justify-center">
         <svg class="w-12 h-12 text-[var(--c-blue)] animate-spin" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M86 50.5C86 70.1355 70.1355 86 50.5 86C30.8645 86 15 70.1355 15 50.5C15 30.8645 30.8645 15 50.5 15" stroke="currentColor" stroke-width="12" stroke-linecap="round"/><path d="M50.5 15C48.7533 15 47.0375 15.0844 45.3611 15.248" stroke="white" stroke-width="10" stroke-linecap="round"/></svg>
         <p class="mt-4 text-sm text-[var(--c-text-dim)]">در حال اتصال به YOOZ...</p>
     </div>
 
-    <!-- صفحه ورود -->
+    <!-- Auth Page -->
     <div id="auth-page" class="hidden fixed inset-0 z-[100] bg-[var(--c-bg)] flex items-center justify-center p-4">
         <div class="w-full max-w-sm p-8 bg-[var(--c-panel)] rounded-2xl shadow-2xl text-center">
              <h2 class="text-2xl font-bold mb-6">ورود به یوز</h2>
@@ -95,11 +109,10 @@
         </div>
     </div>
 
-    <!-- برنامه اصلی -->
+    <!-- Main App -->
     <div id="main-app" class="hidden w-full h-full flex">
-        <!-- ستون راست: لیست چت‌ها -->
+        <!-- Sidebar -->
         <div class="w-80 md:w-96 h-full bg-[var(--c-panel)] flex flex-col border-l border-[var(--c-border)] z-20 shadow-2xl relative">
-            <!-- هدر جستجو و پروفایل -->
             <div class="p-3 flex items-center gap-3 bg-[rgba(34,43,54,0.95)] backdrop-blur-sm sticky top-0 z-10 border-b border-[var(--c-border)]">
                 <div onclick="openProfile()" class="cursor-pointer hover:opacity-80 transition flex-shrink-0">
                     <img id="my-img" class="w-11 h-11 rounded-full object-cover bg-gray-700">
@@ -109,13 +122,9 @@
                 </div>
             </div>
 
-            <!-- نتایج جستجو -->
             <div id="user-search-results" class="flex-1 overflow-y-auto hidden bg-[var(--c-panel)]"></div>
-            
-            <!-- لیست چت‌ها -->
             <div id="chat-list" class="flex-1 overflow-y-auto"></div>
 
-            <!-- دکمه شناور پلاس -->
             <div class="absolute bottom-6 right-6 flex flex-col items-end gap-3 pointer-events-none z-30">
                  <div id="fab-menu" class="fab-menu flex flex-col gap-2 items-end">
                     <button onclick="openCreateModal('channel')" class="bg-white text-black pl-4 pr-3 py-3 rounded-full shadow-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-200 pointer-events-auto">کانال <i class="fa-solid fa-bullhorn text-orange-500"></i></button>
@@ -127,17 +136,14 @@
             </div>
         </div>
 
-        <!-- ستون چپ: صفحه چت -->
+        <!-- Chat Area -->
         <div class="flex-1 h-full flex flex-col chat-bg relative">
-            <!-- صفحه خالی -->
             <div id="chat-placeholder" class="flex flex-col items-center justify-center h-full text-[var(--c-text-dim)]">
                 <div class="bg-[var(--c-panel)] p-4 rounded-full mb-4 opacity-50"><i class="fa-solid fa-comments text-4xl"></i></div>
                 <p>یک گفتگو را برای شروع انتخاب کنید</p>
             </div>
 
-            <!-- محتوای چت -->
             <div id="chat-content" class="hidden flex-1 h-full flex flex-col">
-                <!-- هدر چت -->
                 <div id="chat-header" class="h-16 bg-[var(--c-panel)] flex items-center px-4 justify-between border-b border-black/10 shadow-sm z-10 cursor-pointer" onclick="openMembersModal()">
                     <div class="flex items-center gap-3">
                         <img id="head-img" class="w-10 h-10 rounded-full object-cover bg-gray-600">
@@ -151,17 +157,13 @@
                     </button>
                 </div>
 
-                <!-- لیست پیام‌ها -->
                 <div id="messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2"></div>
 
-                <!-- دکمه جوین برای گروه‌های عمومی -->
                 <div id="join-overlay" class="hidden absolute bottom-24 left-1/2 transform -translate-x-1/2 z-20">
                     <button onclick="joinCurrentRoom()" class="bg-[var(--c-blue)] px-6 py-2 rounded-full shadow-xl font-bold text-white hover:bg-[var(--c-blue-dark)]">عضویت در گفتگو</button>
                 </div>
 
-                <!-- ناحیه ورودی پیام -->
                 <div id="input-area-wrapper" class="bg-[var(--c-panel)] p-2 md:p-3 border-t border-[var(--c-border)]">
-                    <!-- پیش‌نمایش ریپلای -->
                     <div id="reply-preview" class="hidden bg-[var(--c-bg)] p-2 rounded-lg mb-2 border-r-4 border-[var(--c-blue)] flex justify-between items-center animate__animated animate__fadeInUp">
                         <div class="overflow-hidden">
                             <div class="text-[var(--c-blue)] text-xs font-bold" id="reply-name"></div>
@@ -170,7 +172,6 @@
                         <button onclick="cancelReply()" class="text-red-400 p-2"><i class="fa-solid fa-times"></i></button>
                     </div>
 
-                    <!-- پیش‌نمایش فایل -->
                     <div id="file-preview-area" class="hidden bg-[var(--c-bg)] p-2 rounded-lg mb-2 flex justify-between items-center animate__animated animate__fadeInUp">
                         <div class="flex items-center gap-2 overflow-hidden">
                             <i id="file-icon" class="fa-solid fa-file text-[var(--c-blue)]"></i>
@@ -179,7 +180,6 @@
                         <button onclick="clearFilePreview()" class="text-red-400 p-2"><i class="fa-solid fa-times"></i></button>
                     </div>
 
-                    <!-- اینپوت اصلی -->
                     <div class="flex items-end gap-2">
                         <label for="file-upload" class="cursor-pointer text-[var(--c-text-dim)] hover:text-white p-3 transition"><i class="fa-solid fa-paperclip text-xl"></i></label>
                         <input type="file" id="file-upload" class="hidden" onchange="prepareFile(this)">
@@ -195,11 +195,11 @@
         </div>
     </div>
 
-    <!-- مودال‌ها -->
+    <!-- Modals -->
     <div id="modal-container" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
         <div onclick="closeModals()" class="absolute inset-0 bg-black/70 backdrop-blur-sm animate__animated animate__fadeIn"></div>
         
-        <!-- مودال پروفایل -->
+        <!-- Profile -->
         <div id="modal-profile" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__zoomIn">
             <h3 class="font-bold text-lg mb-6 text-center">پروفایل من</h3>
             <div class="flex flex-col items-center mb-6">
@@ -217,7 +217,7 @@
             </div>
         </div>
 
-        <!-- مودال ساخت گروه -->
+        <!-- Create Room -->
         <div id="modal-create" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__zoomIn">
             <h3 id="create-title" class="font-bold text-lg mb-4 text-center"></h3>
             <div class="space-y-4">
@@ -233,9 +233,9 @@
             </div>
         </div>
         
-        <!-- مودال تنظیمات گروه -->
+        <!-- Room Settings -->
         <div id="modal-room-settings" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__zoomIn">
-            <h3 class="font-bold text-lg mb-6 text-center">تنظیمات گروه</h3>
+            <h3 class="font-bold text-lg mb-6 text-center">تنظیمات</h3>
             <div class="flex flex-col items-center mb-6">
                 <div class="relative group cursor-pointer w-24 h-24">
                     <img id="rs-avatar-preview" class="w-full h-full rounded-full object-cover border-4 border-[var(--c-hover)]">
@@ -246,58 +246,53 @@
             <div class="space-y-3">
                 <label class="text-xs text-[var(--c-text-dim)]">نام گروه</label>
                 <input id="rs-name" class="w-full bg-[var(--c-bg)] p-3 rounded-lg outline-none border border-[var(--c-border)] focus:border-[var(--c-blue)]">
+                
+                <label class="text-xs text-[var(--c-text-dim)]">لینک دعوت</label>
+                <div class="flex gap-2">
+                    <input id="rs-link" readonly class="flex-1 bg-[var(--c-bg)] p-3 rounded-lg outline-none text-xs text-gray-400 dir-ltr text-left select-all">
+                    <button onclick="copyInviteLink()" class="bg-[var(--c-hover)] px-3 rounded-lg text-[var(--c-blue)]"><i class="fa-solid fa-copy"></i></button>
+                </div>
+
                 <button onclick="saveRoomSettings()" class="w-full bg-[var(--c-blue)] py-3 rounded-lg font-bold mt-4 hover:bg-[var(--c-blue-dark)]">ذخیره</button>
                 <button onclick="closeModals()" class="w-full text-gray-400 py-2">بستن</button>
             </div>
         </div>
 
-        <!-- مودال اعضا -->
+        <!-- Members -->
         <div id="modal-members" class="modal-content relative bg-[var(--c-panel)] w-full max-w-sm rounded-2xl p-6 hidden animate__animated animate__zoomIn">
-            <h3 class="font-bold text-lg mb-4 text-center">اعضای گروه</h3>
+            <h3 class="font-bold text-lg mb-4 text-center">اعضا</h3>
             <div id="member-list" class="max-h-64 overflow-y-auto space-y-2 pr-1"></div>
             <button onclick="closeModals()" class="w-full text-gray-400 py-3 mt-2 text-sm">بستن</button>
         </div>
     </div>
 
-    <!-- اسکریپت اصلی -->
+    <!-- Script -->
     <script>
-        // --- CONFIG ---
         const SB_URL = 'https://kdoeoufvsavvihghdhyp.supabase.co';
         const SB_KEY = 'sb_publishable_Z-BF5e-PGsesrr18b_laGQ_F0iPU4lk';
         const sb = supabase.createClient(SB_URL, SB_KEY);
         
-        // --- STATE ---
         let app = {
-            me: null,
-            currRoom: null,
-            rooms: [],
-            profiles: [],
-            roomMembers: new Map(),
-            tempFile: { file: null, name: null },
-            tempRoomAvatar: { file: null, url: null },
-            replyingTo: null,
-            createType: 'group',
-            searchTimeout: null
+            me: null, currRoom: null, rooms: [], profiles: [], roomMembers: new Map(),
+            tempFile: { file: null, name: null }, tempRoomAvatar: { file: null, url: null },
+            replyingTo: null, createType: 'group', searchTimeout: null,
+            archivedRooms: JSON.parse(localStorage.getItem('yooz_archived') || '[]')
         };
 
         // --- INIT ---
         window.onload = async () => {
             if(!document.getElementById('loading')) return;
+            // Close context menu on click anywhere
+            document.addEventListener('click', () => { document.getElementById('context-menu').style.display = 'none'; });
+            
             try {
                 const { data: { session } } = await sb.auth.getSession();
                 if (!session) return showAuth();
-                
                 const { data: profile, error } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
-                if (error || !profile) {
-                    await sb.auth.signOut();
-                    return showAuth();
-                }
+                if (error || !profile) { await sb.auth.signOut(); return showAuth(); }
                 app.me = profile;
                 await initApp();
-            } catch (e) {
-                console.error(e);
-                showAuth();
-            }
+            } catch (e) { console.error(e); showAuth(); }
         };
 
         async function initApp() {
@@ -318,42 +313,28 @@
             const u = document.getElementById('u-user').value.trim().toLowerCase();
             const p = document.getElementById('u-pass').value.trim();
             const n = document.getElementById('u-name').value.trim();
-            
             if (!u || !p) return alert('لطفا نام کاربری و رمز عبور را وارد کنید.');
-            
             const email = `${u}@yooz.ir`;
             let { data: { user }, error } = await sb.auth.signInWithPassword({ email, password: p });
-            
             if (error) {
                 if (!n) return alert('برای ثبت‌نام، نام نمایشی الزامی است.');
                 const { data: signUpData, error: signUpError } = await sb.auth.signUp({ 
-                    email, 
-                    password: p, 
-                    options: { data: { display_name: n, username: u } } 
+                    email, password: p, options: { data: { display_name: n, username: u } } 
                 });
                 if (signUpError) return alert('خطا: ' + signUpError.message);
                 user = signUpData.user;
             }
-
-            // Ensure profile exists
             const { data: profile } = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
             if (!profile) await sb.from('profiles').upsert({ id: user.id, username: u, display_name: n || u });
-
-            // Ensure Saved Messages exists
             const savedId = `saved_${user.id}`;
             const { data: saved } = await sb.from('rooms').select('id').eq('id', savedId).maybeSingle();
             if (!saved) await sb.from('rooms').upsert({ id: savedId, name: 'پیام‌های ذخیره شده', type: 'saved', owner_id: user.id, is_public: false });
-
-            // Ensure Main Channel exists
             const { data: main } = await sb.from('rooms').select('id').eq('id', 'yooz_main').maybeSingle();
             if (!main) await sb.from('rooms').insert({ id: 'yooz_main', name: 'کانال رسمی یوز', type: 'channel', owner_id: user.id, is_public: true });
-
             location.reload();
         }
 
-        function doLogout() {
-            sb.auth.signOut().then(() => location.reload());
-        }
+        function doLogout() { sb.auth.signOut().then(() => location.reload()); }
 
         // --- REALTIME ---
         function setupRealtimeListeners() {
@@ -376,46 +357,33 @@
                 sb.from('room_members').select('*'),
                 sb.from('profiles').select('*')
             ]);
-            
             app.rooms = rooms || [];
             app.profiles = profiles || [];
             app.roomMembers.clear();
-            
             members?.forEach(m => {
                 if (!app.roomMembers.has(m.room_id)) app.roomMembers.set(m.room_id, new Map());
                 app.roomMembers.get(m.room_id).set(m.user_id, m.role);
             });
-
             renderChatList();
-            
             if (app.currRoom) {
-                // Refresh current room object
                 const updated = app.rooms.find(r => r.id === app.currRoom.id);
-                if (updated) {
-                    app.currRoom = updated;
-                    updateChatViewUI();
-                }
+                if (updated) { app.currRoom = updated; updateChatViewUI(); }
             }
         }
 
-        // --- RENDER LIST ---
+        // --- CHAT LIST ---
         function renderChatList() {
             const list = document.getElementById('chat-list');
             list.innerHTML = '';
-            
-            // Logic: Saved Messages + Joined Rooms + Created Rooms
             const myRoomIds = Array.from(app.roomMembers.keys());
             const displayRooms = app.rooms.filter(r => 
-                r.type === 'saved' && r.owner_id === app.me.id || 
-                myRoomIds.includes(r.id) ||
-                r.id === 'yooz_main'
+                (r.type === 'saved' && r.owner_id === app.me.id || myRoomIds.includes(r.id) || r.id === 'yooz_main') &&
+                !app.archivedRooms.includes(r.id)
             );
 
-            // Saved Messages First
             const saved = displayRooms.find(r => r.type === 'saved');
             if (saved) list.insertAdjacentHTML('beforeend', renderRoomItem(saved, true));
 
-            // Other rooms
             displayRooms.filter(r => r.type !== 'saved').forEach(r => {
                 list.insertAdjacentHTML('beforeend', renderRoomItem(r));
             });
@@ -424,19 +392,20 @@
         function renderRoomItem(r, isSaved = false) {
             const isActive = app.currRoom?.id === r.id;
             let name = r.name, icon = r.avatar_url, sub = r.type === 'channel' ? 'کانال' : 'گروه';
-            
             if (r.type === 'dm') {
                 const otherId = r.name.replace(app.me.id, '').replace('_', '');
                 const other = app.profiles.find(p => p.id === otherId);
                 name = other ? other.display_name : 'کاربر حذف شده';
                 icon = other ? (other.avatar_url || createAvatar(other.username)) : createAvatar('?');
                 sub = 'چت خصوصی';
-            } else {
-                icon = icon || createAvatar(name);
-            }
+            } else { icon = icon || createAvatar(name); }
+
+            // Right Click Event for Context Menu
+            const onclick = `openRoom('${r.id}')`;
+            const oncontext = `handleChatContextMenu(event, '${r.id}', '${r.type}')`;
 
             return `
-            <div onclick="openRoom('${r.id}')" class="p-3 flex items-center gap-3 cursor-pointer border-b border-[var(--c-border)] transition ${isActive ? 'bg-[var(--c-blue-dark)]' : 'hover:bg-[var(--c-hover)]'}">
+            <div onclick="${onclick}" oncontextmenu="${oncontext}" class="p-3 flex items-center gap-3 cursor-pointer border-b border-[var(--c-border)] transition ${isActive ? 'bg-[var(--c-blue-dark)]' : 'hover:bg-[var(--c-hover)]'}">
                 <img src="${icon}" class="w-12 h-12 rounded-full object-cover bg-gray-700 flex-shrink-0">
                 <div class="flex-1 overflow-hidden">
                     <div class="flex justify-between items-center">
@@ -448,6 +417,61 @@
             </div>`;
         }
 
+        // --- CONTEXT MENU HANDLERS ---
+        function handleChatContextMenu(e, id, type) {
+            e.preventDefault();
+            if(type === 'saved') return;
+            const menu = document.getElementById('context-menu');
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            menu.style.display = 'block';
+            
+            menu.innerHTML = `
+                <div class="ctx-item" onclick="toggleArchive('${id}')"><i class="fa-solid fa-box-archive"></i> آرشیو کردن</div>
+                ${type !== 'dm' ? `<div class="ctx-item" onclick="copyLink('${id}')"><i class="fa-solid fa-link"></i> کپی لینک</div>` : ''}
+                <div class="ctx-item delete" onclick="deleteChat('${id}')"><i class="fa-solid fa-trash"></i> حذف گفتگو</div>
+            `;
+        }
+
+        function handleMessageContextMenu(e, msgId, text, senderName) {
+            e.preventDefault();
+            const menu = document.getElementById('context-menu');
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            menu.style.display = 'block';
+            
+            // Clean text for safety
+            const safeText = text.replace(/'/g, "\\'");
+            
+            menu.innerHTML = `
+                <div class="ctx-item" onclick="setReply(${msgId}, '${senderName}', '${safeText}')"><i class="fa-solid fa-reply"></i> پاسخ</div>
+                <div class="ctx-item" onclick="navigator.clipboard.writeText('${safeText}')"><i class="fa-solid fa-copy"></i> کپی متن</div>
+                <div class="ctx-item" onclick="forwardMessage('${safeText}')"><i class="fa-solid fa-share"></i> فوروارد</div>
+                <div class="ctx-item" onclick="alert('ری‌اکشن: ❤️')"><i class="fa-solid fa-heart text-red-500"></i></div>
+            `;
+        }
+
+        function toggleArchive(id) {
+            if(app.archivedRooms.includes(id)) {
+                app.archivedRooms = app.archivedRooms.filter(x => x !== id);
+            } else {
+                app.archivedRooms.push(id);
+            }
+            localStorage.setItem('yooz_archived', JSON.stringify(app.archivedRooms));
+            refreshDataAndRender();
+        }
+
+        function copyLink(id) {
+            navigator.clipboard.writeText(`https://yooz.ir/join/${id}`);
+            alert('لینک کپی شد!');
+        }
+
+        async function deleteChat(id) {
+            if(!confirm('آیا مطمئن هستید؟')) return;
+            // In a real app we might leave the group or delete messages. Here we just archive it locally to hide.
+            toggleArchive(id);
+        }
+
         // --- CHAT VIEW ---
         async function openRoom(id) {
             app.currRoom = app.rooms.find(r => r.id === id);
@@ -456,12 +480,10 @@
             document.getElementById('chat-placeholder').classList.add('hidden');
             document.getElementById('chat-content').classList.remove('hidden');
             
-            // Check membership
             const isMember = app.roomMembers.has(id) && app.roomMembers.get(id).has(app.me.id);
             const inputWrapper = document.getElementById('input-area-wrapper');
             const joinOverlay = document.getElementById('join-overlay');
 
-            // Permissions
             let canSend = false;
             if (app.currRoom.type === 'saved' || app.currRoom.type === 'dm') canSend = true;
             else if (app.currRoom.type === 'group' && isMember) canSend = true;
@@ -475,7 +497,6 @@
                 if (!isMember && app.currRoom.is_public) joinOverlay.classList.remove('hidden');
                 else joinOverlay.classList.add('hidden');
             }
-
             updateChatViewUI();
             await loadMsgs();
             renderChatList();
@@ -484,7 +505,6 @@
         function updateChatViewUI() {
             const r = app.currRoom;
             let name = r.name, icon = r.avatar_url, status = '';
-            
             if (r.type === 'dm') {
                 const otherId = r.name.replace(app.me.id, '').replace('_', '');
                 const other = app.profiles.find(p => p.id === otherId);
@@ -496,12 +516,9 @@
                 const count = app.roomMembers.get(r.id)?.size || 0;
                 status = `${count} عضو`;
             }
-
             document.getElementById('head-name').innerText = name;
             document.getElementById('head-img').src = icon;
             document.getElementById('head-status').innerText = status;
-            
-            // Only show settings button if owner
             const isOwner = r.owner_id === app.me.id && r.type !== 'dm' && r.type !== 'saved';
             document.getElementById('settings-btn').style.display = isOwner ? 'flex' : 'none';
         }
@@ -515,70 +532,54 @@
         async function loadMsgs() {
             const box = document.getElementById('messages');
             box.innerHTML = '<div class="flex justify-center p-4"><div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>';
-            
             const { data } = await sb.from('messages').select('*').eq('room_id', app.currRoom.id).order('created_at', {ascending: true});
             box.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                box.innerHTML = '<div class="text-center text-[var(--c-text-dim)] mt-10">پیامی وجود ندارد. شروع کننده باشید!</div>';
-            } else {
-                data.forEach(m => appendMsg(m, false));
-            }
+            if (!data || data.length === 0) box.innerHTML = '<div class="text-center text-[var(--c-text-dim)] mt-10">پیامی وجود ندارد.</div>';
+            else data.forEach(m => appendMsg(m, false));
             box.scrollTop = box.scrollHeight;
         }
 
         function appendMsg(m, animate = true) {
             const box = document.getElementById('messages');
-            const placeholder = box.querySelector('.text-center');
-            if(placeholder) placeholder.remove();
+            const placeholder = box.querySelector('.text-center'); if(placeholder) placeholder.remove();
 
             const isMe = m.sender_id === app.me.id;
-            const isAdmin = app.currRoom.owner_id === app.me.id; // Simplified admin check
+            const isAdmin = app.currRoom.owner_id === app.me.id;
             
-            // File Handling
+            // Fix File Display
             let fileHTML = '';
             if (m.file_url) {
                 if (m.file_type === 'image') {
-                    fileHTML = `<img src="${m.file_url}" class="max-w-[200px] rounded-lg mb-1 cursor-pointer" onclick="window.open(this.src)">`;
+                    // Added timestamp to force refresh image
+                    fileHTML = `<a href="${m.file_url}" target="_blank"><img src="${m.file_url}" class="max-w-[200px] rounded-lg mb-1 cursor-pointer hover:opacity-90 transition"></a>`;
                 } else {
-                    fileHTML = `<a href="${m.file_url}" target="_blank" class="flex items-center gap-2 bg-black/20 p-2 rounded mb-1 text-xs text-blue-300"><i class="fa-solid fa-download"></i> دانلود فایل</a>`;
+                    fileHTML = `<a href="${m.file_url}" download target="_blank" class="flex items-center gap-2 bg-black/20 p-2 rounded mb-1 text-xs text-blue-300 hover:bg-black/30"><i class="fa-solid fa-download"></i> دانلود فایل</a>`;
                 }
             }
 
-            // Reply Handling
-            let replyHTML = '';
-            /* If we had a message object for reply, we would show it here. For now, simple text. */
+            const cleanText = (m.text || '').replace(/'/g, "&apos;");
+            const oncontext = `handleMessageContextMenu(event, ${m.id}, '${cleanText}', '${m.sender_name}')`;
 
             const html = `
-            <div id="msg-${m.id}" class="message-container flex w-full ${isMe ? 'justify-end' : 'justify-start'} ${animate ? 'animate__animated animate__fadeIn' : ''} mb-2 relative group">
-                <div class="message-options">
-                    <button onclick="setReply(${m.id}, '${m.sender_name}', '${m.text}')" class="text-gray-400 hover:text-white mx-1"><i class="fa-solid fa-reply"></i></button>
-                    <button onclick="forwardMessage('${m.text}')" class="text-gray-400 hover:text-white mx-1"><i class="fa-solid fa-share"></i></button>
-                    ${(isMe || isAdmin) ? `<button onclick="deleteMessage(${m.id})" class="text-red-400 hover:text-red-500 mx-1"><i class="fa-solid fa-trash"></i></button>` : ''}
-                </div>
+            <div id="msg-${m.id}" oncontextmenu="${oncontext}" class="message-container flex w-full ${isMe ? 'justify-end' : 'justify-start'} ${animate ? 'animate__animated animate__fadeIn' : ''} mb-2 relative group">
                 <div class="msg px-3 py-2 max-w-[75%] shadow-sm ${isMe ? 'msg-out' : 'msg-in'}">
                     <div class="text-[var(--c-blue)] font-bold text-xs mb-1 cursor-pointer">${m.sender_name}</div>
                     ${fileHTML}
                     <div class="text-sm whitespace-pre-wrap leading-relaxed">${m.text || ''}</div>
                     <div class="text-[10px] text-gray-400 text-left mt-1 flex items-center gap-1">
                         ${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                        ${isMe ? '<i class="fa-solid fa-check"></i>' : ''}
                     </div>
                 </div>
             </div>`;
-            
             box.insertAdjacentHTML('beforeend', html);
             box.scrollTop = box.scrollHeight;
         }
 
-        // --- SENDING ---
         async function sendMsg() {
             const txt = document.getElementById('msg-text').value.trim();
             const file = app.tempFile.file;
-            
             if (!txt && !file) return;
             
-            // Upload file first if exists
             let fileUrl = null, fileType = null;
             if (file) {
                 document.getElementById('send-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
@@ -593,164 +594,131 @@
             }
 
             await sb.from('messages').insert({
-                room_id: app.currRoom.id,
-                sender_id: app.me.id,
-                sender_name: app.me.display_name,
-                text: txt,
-                file_url: fileUrl,
-                file_type: fileType,
-                // reply_to: app.replyingTo?.id // Column needed in DB
+                room_id: app.currRoom.id, sender_id: app.me.id, sender_name: app.me.display_name,
+                text: txt, file_url: fileUrl, file_type: fileType
             });
-
             document.getElementById('msg-text').value = '';
             clearFilePreview();
             cancelReply();
         }
 
-        // --- MESSAGE ACTIONS ---
+        // --- HELPERS & ACTIONS ---
         function setReply(id, name, text) {
             app.replyingTo = { id, name, text };
             document.getElementById('reply-preview').classList.remove('hidden');
             document.getElementById('reply-name').innerText = name;
             document.getElementById('reply-text').innerText = text;
         }
+        function cancelReply() { app.replyingTo = null; document.getElementById('reply-preview').classList.add('hidden'); }
+        function forwardMessage(text) { document.getElementById('msg-text').value = `Forwarded: ${text}`; }
+        async function deleteMessage(id) { if(!confirm('حذف؟')) return; await sb.from('messages').delete().eq('id', id); document.getElementById(`msg-${id}`).remove(); }
 
-        function cancelReply() {
-            app.replyingTo = null;
-            document.getElementById('reply-preview').classList.add('hidden');
-        }
-
-        function forwardMessage(text) {
-            // Simplified forward: copy to input
-            document.getElementById('msg-text').value = `Forwarded: ${text}`;
-        }
-
-        async function deleteMessage(id) {
-            if(!confirm('حذف پیام؟')) return;
-            await sb.from('messages').delete().eq('id', id);
-            document.getElementById(`msg-${id}`).remove();
-        }
-
-        // --- FILE HANDLING ---
         function prepareFile(input) {
-            const file = input.files[0];
-            if(!file) return;
+            const file = input.files[0]; if(!file) return;
             app.tempFile = { file, name: file.name };
             document.getElementById('file-preview-area').classList.remove('hidden');
             document.getElementById('file-name').innerText = file.name;
         }
-
         function clearFilePreview() {
-            app.tempFile = {};
-            document.getElementById('file-upload').value = '';
+            app.tempFile = {}; document.getElementById('file-upload').value = '';
             document.getElementById('file-preview-area').classList.add('hidden');
         }
 
         // --- MODALS ---
-        function showModal(id) {
-            document.getElementById('modal-container').classList.remove('hidden');
-            document.getElementById('modal-container').classList.add('flex');
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModals() {
-            document.getElementById('modal-container').classList.add('hidden');
-            document.getElementById('modal-container').classList.remove('flex');
-            document.querySelectorAll('.modal-content').forEach(el => el.classList.add('hidden'));
-        }
-
+        function showModal(id) { document.getElementById('modal-container').classList.remove('hidden'); document.getElementById('modal-container').classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
+        function closeModals() { document.getElementById('modal-container').classList.add('hidden'); document.getElementById('modal-container').classList.remove('flex'); document.querySelectorAll('.modal-content').forEach(el => el.classList.add('hidden')); }
+        
         function openProfile() {
             document.getElementById('p-name').value = app.me.display_name;
             document.getElementById('p-avatar-preview').src = app.me.avatar_url || createAvatar(app.me.username);
             showModal('modal-profile');
         }
-
         async function saveProfile() {
             const name = document.getElementById('p-name').value;
             await sb.from('profiles').update({ display_name: name, avatar_url: app.me.avatar_url }).eq('id', app.me.id);
-            closeModals();
-            location.reload();
+            closeModals(); location.reload();
         }
-
         async function uploadAvatar(input) {
-            const file = input.files[0];
-            if(!file) return;
+            const file = input.files[0]; if(!file) return;
             const path = `avatars/${app.me.id}_${Date.now()}`;
             await sb.storage.from('yooz_files').upload(path, file, {upsert:true});
             const { data } = sb.storage.from('yooz_files').getPublicUrl(path);
-            app.me.avatar_url = data.publicUrl;
-            document.getElementById('p-avatar-preview').src = data.publicUrl;
+            app.me.avatar_url = data.publicUrl; document.getElementById('p-avatar-preview').src = data.publicUrl;
         }
 
         function openCreateModal(type) {
-            app.createType = type;
-            document.getElementById('create-title').innerText = type === 'group' ? 'ساخت گروه' : 'ساخت کانال';
-            showModal('modal-create');
-            toggleFab();
+            app.createType = type; document.getElementById('create-title').innerText = type === 'group' ? 'ساخت گروه' : 'ساخت کانال';
+            showModal('modal-create'); toggleFab();
         }
-
         async function createRoom() {
-            const name = document.getElementById('new-room-name').value;
-            if(!name) return;
+            const name = document.getElementById('new-room-name').value; if(!name) return;
             const isPrivate = document.getElementById('new-room-private').checked;
             const id = 'r_' + Date.now();
-            
-            await sb.from('rooms').insert({
-                id, name, type: app.createType, owner_id: app.me.id, is_public: !isPrivate
-            });
+            await sb.from('rooms').insert({ id, name, type: app.createType, owner_id: app.me.id, is_public: !isPrivate });
             await sb.from('room_members').insert({ room_id: id, user_id: app.me.id, role: 'admin' });
-            
-            closeModals();
-            await refreshDataAndRender();
-            openRoom(id);
+            closeModals(); await refreshDataAndRender(); openRoom(id);
         }
-        
+
+        function openRoomSettings() {
+             document.getElementById('rs-name').value = app.currRoom.name;
+             document.getElementById('rs-link').value = `https://yooz.ir/join/${app.currRoom.id}`;
+             document.getElementById('rs-avatar-preview').src = app.currRoom.avatar_url || createAvatar(app.currRoom.name);
+             showModal('modal-room-settings');
+        }
+        function copyInviteLink() {
+            const link = document.getElementById('rs-link');
+            link.select();
+            navigator.clipboard.writeText(link.value);
+            alert('لینک کپی شد');
+        }
+        async function previewRoomAvatar(input) {
+            const file = input.files[0]; if(file) { app.tempRoomAvatar.file = file; document.getElementById('rs-avatar-preview').src = URL.createObjectURL(file); }
+        }
+        async function saveRoomSettings() {
+             const name = document.getElementById('rs-name').value;
+             let url = app.currRoom.avatar_url;
+             if(app.tempRoomAvatar.file) {
+                 const path = `avatars/room_${app.currRoom.id}_${Date.now()}`;
+                 await sb.storage.from('yooz_files').upload(path, app.tempRoomAvatar.file);
+                 const { data } = sb.storage.from('yooz_files').getPublicUrl(path); url = data.publicUrl;
+             }
+             await sb.from('rooms').update({ name, avatar_url: url }).eq('id', app.currRoom.id);
+             closeModals(); refreshDataAndRender();
+        }
+
+        async function openMembersModal() {
+             if(app.currRoom.type === 'dm') return;
+             const list = document.getElementById('member-list'); list.innerHTML = '';
+             const roomMembers = app.roomMembers.get(app.currRoom.id);
+             if(!roomMembers) return;
+             roomMembers.forEach((role, uid) => {
+                 const p = app.profiles.find(x => x.id === uid);
+                 if(p) {
+                     const isOwner = app.currRoom.owner_id === app.me.id;
+                     const btn = (isOwner && uid !== app.me.id) ? `<button onclick="toggleAdmin('${uid}', '${role}')" class="text-xs ${role === 'admin' ? 'text-red-400' : 'text-green-400'}">${role==='admin'?'حذف ادمین':'ادمین کن'}</button>` : '';
+                     list.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center p-2 hover:bg-black/20 rounded"><div class="flex items-center gap-2"><img src="${p.avatar_url||createAvatar(p.username)}" class="w-8 h-8 rounded-full"><span class="text-sm font-bold">${p.display_name}</span><span class="text-xs text-gray-500">(${role})</span></div>${btn}</div>`);
+                 }
+             });
+             showModal('modal-members');
+        }
+        async function toggleAdmin(uid, role) {
+             const newRole = role === 'admin' ? 'member' : 'admin';
+             await sb.from('room_members').update({ role: newRole }).eq('room_id', app.currRoom.id).eq('user_id', uid);
+             openMembersModal();
+        }
+
         // --- SEARCH ---
-        function showUserSearch() {
-            clearTimeout(app.searchTimeout);
-            document.getElementById('chat-list').classList.add('hidden');
-            document.getElementById('user-search-results').classList.remove('hidden');
-        }
-        
-        function hideUserSearch() {
-            app.searchTimeout = setTimeout(() => {
-                const val = document.getElementById('search').value;
-                if(!val) {
-                    document.getElementById('chat-list').classList.remove('hidden');
-                    document.getElementById('user-search-results').classList.add('hidden');
-                }
-            }, 200);
-        }
-        
+        function showUserSearch() { clearTimeout(app.searchTimeout); document.getElementById('chat-list').classList.add('hidden'); document.getElementById('user-search-results').classList.remove('hidden'); }
+        function hideUserSearch() { app.searchTimeout = setTimeout(() => { if(!document.getElementById('search').value) { document.getElementById('chat-list').classList.remove('hidden'); document.getElementById('user-search-results').classList.add('hidden'); } }, 200); }
         function handleSearch(q) {
-            const list = document.getElementById('user-search-results');
-            list.innerHTML = '';
-            if(!q) return;
-            
-            const matches = app.profiles.filter(p => 
-                p.id !== app.me.id && 
-                (p.username.toLowerCase().includes(q.toLowerCase()) || p.display_name.toLowerCase().includes(q.toLowerCase()))
-            );
-            
-            if(matches.length === 0) {
-                list.innerHTML = '<div class="p-4 text-center text-gray-500">کاربری یافت نشد</div>';
-                return;
-            }
-            
+            const list = document.getElementById('user-search-results'); list.innerHTML = ''; if(!q) return;
+            const matches = app.profiles.filter(p => p.id !== app.me.id && (p.username.toLowerCase().includes(q.toLowerCase()) || p.display_name.toLowerCase().includes(q.toLowerCase())));
+            if(matches.length === 0) { list.innerHTML = '<div class="p-4 text-center text-gray-500">کاربری یافت نشد</div>'; return; }
             matches.forEach(p => {
                 const av = p.avatar_url || createAvatar(p.username);
-                list.insertAdjacentHTML('beforeend', `
-                    <div onclick="startDm('${p.id}')" class="p-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--c-hover)] border-b border-[var(--c-border)]">
-                        <img src="${av}" class="w-10 h-10 rounded-full object-cover">
-                        <div>
-                            <div class="font-bold text-sm">${p.display_name}</div>
-                            <div class="text-xs text-gray-400">@${p.username}</div>
-                        </div>
-                    </div>
-                `);
+                list.insertAdjacentHTML('beforeend', `<div onclick="startDm('${p.id}')" class="p-3 flex items-center gap-3 cursor-pointer hover:bg-[var(--c-hover)] border-b border-[var(--c-border)]"><img src="${av}" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold text-sm">${p.display_name}</div><div class="text-xs text-gray-400">@${p.username}</div></div></div>`);
             });
         }
-        
         async function startDm(otherId) {
             const id = [app.me.id, otherId].sort().join('_');
             let { data: room } = await sb.from('rooms').select('*').eq('id', id).single();
@@ -758,94 +726,15 @@
                 await sb.from('rooms').insert({ id, name: id, type: 'dm', owner_id: app.me.id, is_public: false });
                 await sb.from('room_members').insert([{room_id: id, user_id: app.me.id}, {room_id: id, user_id: otherId}]);
             }
-            document.getElementById('search').value = '';
-            hideUserSearch();
-            await refreshDataAndRender();
-            openRoom(id);
+            document.getElementById('search').value = ''; hideUserSearch(); await refreshDataAndRender(); openRoom(id);
         }
 
-        // --- HELPERS ---
-        function toggleFab() {
-            const menu = document.getElementById('fab-menu');
-            const icon = document.getElementById('fab-icon');
-            menu.classList.toggle('open');
-            if(menu.classList.contains('open')) {
-                icon.classList.remove('fa-plus'); icon.classList.add('fa-times');
-            } else {
-                icon.classList.add('fa-plus'); icon.classList.remove('fa-times');
-            }
-        }
-        
-        function openRoomSettings() {
-             document.getElementById('rs-name').value = app.currRoom.name;
-             document.getElementById('rs-avatar-preview').src = app.currRoom.avatar_url || createAvatar(app.currRoom.name);
-             showModal('modal-room-settings');
-        }
-        
-        async function previewRoomAvatar(input) {
-            const file = input.files[0];
-            if(file) {
-                 app.tempRoomAvatar.file = file;
-                 document.getElementById('rs-avatar-preview').src = URL.createObjectURL(file);
-            }
-        }
-        
-        async function saveRoomSettings() {
-             const name = document.getElementById('rs-name').value;
-             let url = app.currRoom.avatar_url;
-             if(app.tempRoomAvatar.file) {
-                 const path = `avatars/room_${app.currRoom.id}_${Date.now()}`;
-                 await sb.storage.from('yooz_files').upload(path, app.tempRoomAvatar.file);
-                 const { data } = sb.storage.from('yooz_files').getPublicUrl(path);
-                 url = data.publicUrl;
-             }
-             await sb.from('rooms').update({ name, avatar_url: url }).eq('id', app.currRoom.id);
-             closeModals();
-             refreshDataAndRender();
-        }
-        
-        async function openMembersModal() {
-             if(app.currRoom.type === 'dm') return;
-             const list = document.getElementById('member-list');
-             list.innerHTML = '';
-             const roomMembers = app.roomMembers.get(app.currRoom.id); // Map of userId -> role
-             
-             if(!roomMembers) return;
-             
-             roomMembers.forEach((role, uid) => {
-                 const p = app.profiles.find(x => x.id === uid);
-                 if(p) {
-                     const isOwner = app.currRoom.owner_id === app.me.id;
-                     const btn = (isOwner && uid !== app.me.id) ? `<button onclick="toggleAdmin('${uid}', '${role}')" class="text-xs ${role === 'admin' ? 'text-red-400' : 'text-green-400'}">${role==='admin'?'حذف ادمین':'ادمین کن'}</button>` : '';
-                     
-                     list.insertAdjacentHTML('beforeend', `
-                        <div class="flex justify-between items-center p-2 hover:bg-black/20 rounded">
-                            <div class="flex items-center gap-2">
-                                <img src="${p.avatar_url||createAvatar(p.username)}" class="w-8 h-8 rounded-full">
-                                <span class="text-sm font-bold">${p.display_name}</span>
-                                <span class="text-xs text-gray-500">(${role})</span>
-                            </div>
-                            ${btn}
-                        </div>
-                     `);
-                 }
-             });
-             showModal('modal-members');
-        }
-        
-        async function toggleAdmin(uid, role) {
-             const newRole = role === 'admin' ? 'member' : 'admin';
-             await sb.from('room_members').update({ role: newRole }).eq('room_id', app.currRoom.id).eq('user_id', uid);
-             openMembersModal(); // Refresh list
-        }
-
+        // --- UTILS ---
+        function toggleFab() { const m = document.getElementById('fab-menu'); const i = document.getElementById('fab-icon'); m.classList.toggle('open'); i.classList.toggle('rotate-45'); }
         function createAvatar(name) {
-            if (!name) name = '?';
-            const colors = ["#3390ec", "#e53935", "#8e24aa", "#00897b", "#fdd835", "#fb8c00"];
-            const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-            const color = colors[Math.abs(hash) % colors.length];
-            const initial = name.charAt(0).toUpperCase();
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="50" fill="white" font-family="Vazirmatn">${initial}</text></svg>`;
+            if (!name) name = '?'; const colors = ["#3390ec", "#e53935", "#8e24aa", "#00897b", "#fdd835", "#fb8c00"];
+            const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0); const color = colors[Math.abs(hash) % colors.length];
+            const initial = name.charAt(0).toUpperCase(); const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="50" fill="white" font-family="Vazirmatn">${initial}</text></svg>`;
             return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
         }
     </script>
